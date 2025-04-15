@@ -3,3 +3,6 @@ nodemon.json
 .env
 *.key
 *.cert
+
+server.key
+server.cert
