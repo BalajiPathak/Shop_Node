@@ -26,8 +26,16 @@ const store = new MongoDBStore({
   collection: 'sessions'
 });
 const csrfProtection = csrf();
-const privateKey = fs.readFileSync(process.env.SSL_KEY_PATH || 'certificates/server.key');
-const certificate = fs.readFileSync(process.env.SSL_CERT_PATH || 'certificates/server.cert');
+
+// Make SSL certificate loading optional
+let privateKey;
+let certificate;
+try {
+  privateKey = fs.readFileSync('certificates/server.key');
+  certificate = fs.readFileSync('certificates/server.cert');
+} catch (error) {
+  console.log('SSL certificates not found, running in HTTP mode');
+}
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -122,8 +130,11 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then(result => {
-  //  https.createServer({key: privateKey, cert: certificate}, app).listen(process.env.PORT||3000);
-  app.listen(process.env.PORT||3000);
+    // Start server based on environment
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
   })
   .catch(err => {
     console.log(err);
