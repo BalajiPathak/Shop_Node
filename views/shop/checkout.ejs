@@ -1,0 +1,32 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/cart.css">
+<script src="https://js.stripe.com/v3/"></script>
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <main>
+            <ul class="cart__item-list">
+                <% products.forEach(p => { %>
+                    <li class="cart__item">
+                        <h1><%= p.productId.title %></h1>
+                        <h2>Quantity: <%= p.quantity %></h2>
+                    </li>
+                <% }) %>
+            </ul>
+            <div class="centered">
+                <h2>Total: $<%= totalSum.toFixed(2) %></h2>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button id="order-btn" class="btn">ORDER</button>
+                <script>
+                    var stripe = Stripe('pk_test_51RCg6yRx7UrgWlNPCw95Aq1yf1y7t9xPxYWYKMCPtXbxd7ifWTbcAj3JtajDtre8UlZSy7UVE3IAdUGzJjAyhVSh00lUHyyZ9C'); // Replace with your actual Stripe publishable key
+                    var orderBtn = document.getElementById('order-btn');
+                    orderBtn.addEventListener('click', function() {
+                        stripe.redirectToCheckout({
+                            sessionId: '<%= sessionId %>'
+                        });
+                    });
+                </script>
+            </div>
+        </main>
+        <%- include('../includes/end.ejs') %>
