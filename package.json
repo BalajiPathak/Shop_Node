@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set MONGO_USER=BalajiPathak&& set MONGO_PASSWORD=Bpathakji@123&& set MONGO_DEFAULT_DATABASE=shop&& set STRIPE_KEY=sk_test_51RCg6yRx7UrgWlNPaJ9BCwbhsYaNjQyLnHgzD4tQzP4HSMh8Si55JvvS7ktKOmpAVhOONAfGKBrCrTxYp46lj7EK00rFuqdR2h&& node app.js",
+    "start": "node -r dotenv/config app.js",
     "start-server": "node app.js",
     "start:dev": "nodemon app.js"
   },
@@ -21,6 +21,7 @@
     "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^5.0.0",
     "csurf": "^1.10.0",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.9",
     "express": "^4.18.3",
     "express-handlebars": "^7.1.3",
