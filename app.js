@@ -26,7 +26,15 @@ if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir);
 }
 
-const MONGODB_URI = `mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop?retryWrites=true&w=majority`;
+const MONGODB_URI = process.env.MONGODB_URI || `mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop?retryWrites=true&w=majority`;
+
+// Add MongoDB connection options
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  ssl: true,
+  tlsAllowInvalidCertificates: true
+};
 
 const app = express();
 const store = new MongoDBStore({
@@ -124,13 +132,15 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(MONGODB_URI)
+  .connect(MONGODB_URI, mongooseOptions)
   .then(result => {
     const port = process.env.PORT || 3000;
     app.listen(port, '0.0.0.0', () => {
       console.log(`Server running on port ${port}`);
+      console.log('MongoDB Connected');
     });
   })
   .catch(err => {
-    console.log('MongoDB connection error:', err);
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
   });
