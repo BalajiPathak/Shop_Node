@@ -17,7 +17,7 @@ const morgan = require('morgan');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.x0xuyyk.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
+const MONGODB_URI = `mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop?retryWrites=true&w=majority`;
 
 const app = express();
 const store = new MongoDBStore({
@@ -141,18 +141,11 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then(result => {
-    // Start server based on environment
     const port = process.env.PORT || 3000;
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
       console.log(`Server running on port ${port}`);
     });
   })
   .catch(err => {
-    console.log(err);
+    console.log('MongoDB connection error:', err);
   });
-
-// Update helmet configuration for content security
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
