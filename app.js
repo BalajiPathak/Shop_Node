@@ -64,7 +64,19 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
+// Create images directory if it doesn't exist
+const imagesDir = path.join(__dirname, 'images');
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir);
+}
+
+// Create logs directory if it doesn't exist
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), {flags: 'a'});
 
 app.use(helmet());
 app.use(compression());
@@ -139,3 +151,9 @@ mongoose
   .catch(err => {
     console.log(err);
   });
+
+// Update helmet configuration for content security
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
