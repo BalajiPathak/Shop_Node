@@ -1,6 +1,5 @@
 const path = require('path');
-const fs = require('fs')
-const https = require('https')
+const fs = require('fs');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -10,12 +9,22 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
-const helmet  = require('helmet');
+const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
+
+// Create required directories first
+const imagesDir = path.join(__dirname, 'images');
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir);
+}
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
 
 const MONGODB_URI = `mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop?retryWrites=true&w=majority`;
 
@@ -26,21 +35,11 @@ const store = new MongoDBStore({
 });
 const csrfProtection = csrf();
 
-// Make SSL certificate loading optional
-let privateKey;
-let certificate;
-try {
-  privateKey = fs.readFileSync('certificates/server.key');
-  certificate = fs.readFileSync('certificates/server.cert');
-} catch (error) {
-  console.log('SSL certificates not found, running in HTTP mode');
-}
-
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'images');
   },
-  filename: (req, file , cb) => {
+  filename: (req, file, cb) => {
     cb(null, new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname);
   }
 });
@@ -63,38 +62,26 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
-// Create images directory if it doesn't exist
-const imagesDir = path.join(__dirname, 'images');
-if (!fs.existsSync(imagesDir)) {
-  fs.mkdirSync(imagesDir);
-}
-
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir);
-}
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), {flags: 'a'});
 
-app.use(helmet());
+// Basic security headers without strict CSP
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
 app.use(compression());
 app.use(morgan('combined', {stream: accessLogStream}));
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
-);
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
-app.use(
-  session({
-    secret: 'my secret',
-    resave: false,
-    saveUninitialized: false,
-    store: store
-  })
-);
+app.use(session({
+  secret: 'my secret',
+  resave: false,
+  saveUninitialized: false,
+  store: store
+}));
 app.use(csrfProtection);
 app.use(flash());
 
@@ -105,7 +92,6 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  // throw new Error('Sync Dummy');
   if (!req.session.user) {
     return next();
   }
@@ -127,7 +113,6 @@ app.use(shopRoutes);
 app.use(authRoutes);
 
 app.get('/500', errorController.get500);
-
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
