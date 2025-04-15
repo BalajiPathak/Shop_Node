@@ -1,9 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const strip = require('stripe')(
-  process.env.STRIPE_KEY
-)
 
+if (!process.env.STRIPE_KEY) {
+  console.error('STRIPE_KEY is not set in environment variables');
+}
+
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 const PDFDocument = require('pdfkit');
 
 const Product = require('../models/product');
