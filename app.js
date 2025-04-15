@@ -26,7 +26,7 @@ if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir);
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || `mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop?retryWrites=true&w=majority`;
+const MONGODB_URI = process.env.MONGODB_URI || `mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop`;
 
 // Add MongoDB connection options
 const mongooseOptions = {
