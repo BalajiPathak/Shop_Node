@@ -1,11 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-if (!process.env.STRIPE_KEY) {
-  console.error('STRIPE_KEY is not set in environment variables');
+let stripe;
+try {
+  if (!process.env.STRIPE_KEY) {
+    console.warn('Warning: STRIPE_KEY is not set in environment variables. Payment features will be disabled.');
+  } else {
+    stripe = require('stripe')(process.env.STRIPE_KEY);
+  }
+} catch (error) {
+  console.error('Error initializing Stripe:', error);
 }
 
-const stripe = require('stripe')(process.env.STRIPE_KEY);
 const PDFDocument = require('pdfkit');
 
 const Product = require('../models/product');
@@ -122,7 +128,7 @@ exports.getCheckout = (req, res, next) => {
        total += p.quantity * p.productId.price;
      });
 
-     return strip.checkout.sessions.create({
+     return stripe.checkout.sessions.create({
        payment_method_types: ['card'],
        line_items: products.map(p => {
          return {
