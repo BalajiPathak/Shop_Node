@@ -1,18 +1,27 @@
 <%- include('../includes/head.ejs') %>
-    </head>
+<%- include('../includes/navigation.ejs') %>
 
-    <body>
-        <%- include('../includes/navigation.ejs') %>
-        <main class="centered">
-            <h1><%= product.title %></h1>
-            <hr>
-            <div class="image">
-                <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
-            </div>
-            <h2><%= product.price %></h2>
-            <p><%= product.description %></p>
-            <% if (isAuthenticated) { %>
-                <%- include('../includes/add-to-cart.ejs', {product: product}) %>
-            <% } %>
-        </main>
-        <%- include('../includes/end.ejs') %>
+<main>
+  <div class="grid">
+    <article class="card product-detail">
+      <header class="card__header">
+        <h1 class="product__title"><%= product.title %></h1>
+      </header>
+      <div class="card__content">
+        <h2 class="product__price">$<%= product.price %></h2>
+        <p class="product__description"><%= product.description %></p>
+      </div>
+      <div class="card__actions">
+        <% if (isAuthenticated) { %>
+          <form action="/cart" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="productId" value="<%= product._id %>">
+            <button class="btn" type="submit">Add to Cart</button>
+          </form>
+        <% } %>
+      </div>
+    </article>
+  </div>
+</main>
+
+<%- include('../includes/end.ejs') %>
