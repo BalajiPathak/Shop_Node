@@ -8,7 +8,6 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
-const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 
@@ -24,7 +23,7 @@ if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir);
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://BalajiPathak:Bpathakji%40123@cluster0.x0xuyyk.mongodb.net/shop';
 
 const app = express();
 const store = new MongoDBStore({
@@ -66,7 +65,6 @@ const accessLogStream = fs.createWriteStream(
   { flags: 'a' }
 );
 
-app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(morgan('combined', { stream: accessLogStream }));
 
@@ -124,10 +122,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  .connect(MONGODB_URI)
   .then(result => {
     const port = process.env.PORT || 3000;
     app.listen(port, '0.0.0.0', () => {
@@ -136,5 +131,5 @@ mongoose
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit if cannot connect to database
+    process.exit(1);
   });
